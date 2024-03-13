@@ -1,0 +1,360 @@
+<template>
+  <div id="projectProgress" ref="elementS">
+    <div class="main">
+      <div class="content">
+        <div class="selector header">
+          <div class="selectorGroups">
+            <el-radio-group v-model="is_complete" @change="getGant">
+              <el-radio-button label="1">周计划</el-radio-button>
+              <el-radio-button label="2">月计划</el-radio-button>
+              <el-radio-button label="3">年计划</el-radio-button>
+              <el-radio-button label="4">总计划</el-radio-button>
+            </el-radio-group>
+          </div>
+        </div>
+        <div
+          style="display: flex;justify-content: space-between;align-items:center;margin-bottom:16px;"
+        >
+          <div class="progressConHeader" style="width: auto; margin: 0px">
+            <div class="pchLeft">
+              <div>项目名称：</div>
+              <el-select
+                v-model="searchId"
+                filterable
+                placeholder="请选择项目"
+                @change="searchNext"
+              >
+                <el-option
+                  v-for="item in nextProject"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                >
+                </el-option>
+              </el-select>
+              <div class="selectorGroups">
+                <span
+                  :style="{
+                    display: 'block',
+                  }"
+                  class="legend progress"
+                ></span>
+                <span
+                  :style="{
+                    display: 'block',
+                  }"
+                  >进行中</span
+                >
+                <span
+                  :style="{
+                    display: 'block',
+                  }"
+                  class="legend delayed"
+                ></span>
+                <span
+                  :style="{
+                    display: 'block',
+                  }"
+                  >延期</span
+                >
+                <span
+                  :style="{
+                    display: 'block',
+                  }"
+                  class="legend completed"
+                ></span>
+                <span
+                  :style="{
+                    display: 'block',
+                  }"
+                  >已完成</span
+                >
+                <span
+                  :style="{
+                    display: 'block',
+                  }"
+                  class="legend delayCompleted"
+                ></span>
+                <span
+                  :style="{
+                    display: 'block',
+                  }"
+                  >延期完成</span
+                >
+              </div>
+            </div>
+            <!-- <el-button type="primary" size="medium">搜索</el-button> -->
+          </div>
+
+          <div class="gantBtn" style="margin: 0px">
+            <el-radio-group v-model="gantRadio" @change="gantChange">
+              <el-radio-button label="1">按日显示</el-radio-button>
+              <el-radio-button label="2">按月显示</el-radio-button>
+            </el-radio-group>
+          </div>
+        </div>
+        <div ref="ganttRef" class="left-container" />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import gantt from 'dhtmlx-gantt'; // 引入模块
+import 'dhtmlx-gantt/codebase/dhtmlxgantt.css';
+import 'dhtmlx-gantt/codebase/dhtmlxgantt.js'; // 本地化
+export default {
+  name: 'progressGant',
+  data() {
+    return {
+      peopleIsShow: true,
+      searchLCId: '',
+      searchId: '',
+      type: 1,
+      is_complete: 1,
+      nextProject: [],
+      clickType: 1,
+      chartsData: { bing: {}, content: [] },
+      formInline: {
+        name: '',
+        type: '',
+      },
+      searchName: '',
+      isLast: false,
+      loaded: false,
+      editID: '',
+      deleteVisible: false,
+      comVisible: false,
+      editProgressView: false,
+      progressList: [],
+      newView: false,
+      nextRadio: 0,
+      gantRadio: 1,
+      labelPosition: 'right',
+      newProgressView: false,
+      taskTitle: '新建工程事件',
+      activeName: 'first',
+      projectList: [],
+      searchForm: {
+        name: '',
+        starttime: '',
+        endtime: '',
+        city: '',
+      },
+      moveId: '',
+      tasks: {
+        data: [
+          // {
+          //     id: 1,
+          //     text: '开工开工开工开工开工开工开工开工',
+          //     start_date: '15-04-2017',
+          //     end_date: '18-04-2017',
+          //     personName: '张总',
+          //     duration: 3,
+          //     progress: 0.6
+          // },
+          // {
+          //     id: 2,
+          //     text: 'Task #2',
+          //     start_date: '18-04-2017',
+          //     end_date: '21-04-2017',
+          //     personName: '李总',
+          //     duration: 3,
+          //     progress: 0.4
+          // },
+          // {
+          //     id: 3,
+          //     text: 'Task #3',
+          //     start_date: '20-04-2017',
+          //     end_date: '23-04-2017',
+          //     personName: '赵总',
+          //     duration: 3,
+          //     progress: 0.4,
+          //     parent: 2
+          // }
+        ],
+        // links: [{ id: 1, source: 1, target: 2, type: '0' }]
+      },
+    };
+  },
+
+  methods: {
+    searchNext() {
+      this.getGant();
+    },
+    gantChange(val) {
+      const quarter_template = date => {
+        return 'Q' + (Math.floor(date.getMonth() / 3) + 1);
+      };
+      if (val == 1) {
+        gantt.config.scales = [
+          { unit: 'month', step: 1, format: '%F, %Y' },
+          { unit: 'day', step: 1, format: '%j, %D' },
+        ];
+        // 数据解析
+        // gantt.parse(this.tasks);
+      } else if (val == 2) {
+        gantt.config.scales = [
+          { unit: 'year', step: 1, format: '%Y' },
+          { unit: 'month', step: 1, format: '%M' },
+        ];
+        // 数据解析
+        // gantt.parse(this.tasks);
+      } else if (val == 3) {
+        gantt.config.scales = [
+          { unit: 'quarter', step: 1, template: quarter_template },
+          { unit: 'year', step: 1, format: '%Y' },
+        ];
+        // 数据解析
+        // gantt.parse(this.tasks);
+      }
+      this.getGant();
+    },
+    getGant() {
+      const _this = this;
+      _this.$axios
+        .post('/finance/schedule_chart', {
+          is_complete: _this.is_complete,
+          xmid: _this.searchId,
+          type: _this.type,
+        })
+        .then(res => {
+          if (res.data.code == 1) {
+            gantt.clearAll();
+            _this.tasks.data = res.data.content;
+            gantt.parse(_this.tasks);
+          } else {
+            _this.$message.warning(res.data.msg);
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+    //获取子项目
+    getNextProject() {
+      const _this = this;
+      _this.$axios
+        .post('/project/projectInfoRegisterZbList')
+        .then(res => {
+          if (res.data.code == 1) {
+            _this.nextProject = res.data.data;
+            _this.searchId = res.data.data[0].id;
+
+            _this.getGant();
+          } else {
+            _this.$message.warning(res.data.msg);
+          }
+        })
+        .catch(function(error) {
+          console.log(error);
+        });
+    },
+  },
+  mounted() {
+    const _this = this;
+    _this.$utils.checkding();
+    gantt.plugins({
+      tooltip: true,
+    });
+    gantt.templates.tooltip_text = function(start, end, task) {
+      return (
+        '<b>' +
+        task.text +
+        '</b><br/>' +
+        '开始时间: ' +
+        new Date(start).toLocaleDateString() +
+        '<br/>' +
+        '结束时间: ' +
+        new Date(end).toLocaleDateString()
+      );
+    };
+    gantt.templates.task_class = function(start, end, task) {
+      console.log('Task', task);
+      switch (task.status) {
+        case 4: {
+          return 'delayed';
+        }
+        case 1: {
+          return 'completed';
+        }
+        case 3: {
+          return 'progress';
+        }
+        case 2: {
+          return 'delayCompleted';
+        }
+      }
+    };
+    gantt.i18n.setLocale('cn');
+    gantt.config.columns = [
+      {
+        name: 'text',
+        label: '工程计划名称',
+        tree: true,
+        width: '200',
+      },
+      {
+        name: 'personName',
+        label: '负责人',
+        align: 'center',
+        resize: true,
+      },
+      {
+        name: 'start_date',
+        label: '开始时间',
+        align: 'center',
+        width: 150,
+      },
+      // {
+      //     name: 'end_date',
+      //     label: '结束时间',
+      //     align: 'center',
+      //     width: 150
+      // },
+      {
+        name: 'duration',
+        label: '工期',
+        align: 'center',
+        // template: function (obj) {
+        //     return obj.duration + 1;
+        // }
+      },
+    ];
+    // gantt.config.readonly = true;
+    gantt.config.scales = [
+      { unit: 'month', step: 1, format: '%F, %Y' },
+      { unit: 'day', step: 1, format: '%j, %D' },
+    ];
+    gantt.config.grid_width = 500;
+    // 初始化
+    gantt.init(_this.$refs.ganttRef);
+    _this.getNextProject();
+
+    // 数据解析
+  },
+};
+</script>
+
+<style lang="less" scoped>
+.main {
+  background: #ffffff;
+  padding: 30px 36px !important;
+  border-radius: 5px;
+  .pchLeft {
+    align-items: center;
+  }
+}
+.selectorGroups {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+.legend {
+  width: 24px;
+  height: 18px;
+  border-radius: 9px;
+  margin-left: 8px;
+}
+</style>
