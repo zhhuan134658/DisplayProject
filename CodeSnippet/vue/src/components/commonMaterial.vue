@@ -107,7 +107,7 @@ export default {
     },
     getBasicList() {
       this.$axios
-        .post('/project/materialTypeList', {
+        .post('//', {
           name: '',
         })
         .then(res => {
@@ -142,7 +142,7 @@ export default {
     //获取列表
     getList() {
       this.$axios
-        .post('/project/materialGoodsList', {
+        .post('//', {
           name: this.conSearch,
           page: this.currentPage,
           type: this.listNodeID,

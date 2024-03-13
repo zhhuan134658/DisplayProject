@@ -405,20 +405,6 @@ export default {
 
       console.log(_this.viewDList);
       _this.viewDuFormVisible = true;
-
-      //   _this.$axios
-      //     .post('/newtao/payOperationJu', {
-      //       id: item.id,
-      //       biao_name: 'material_payment',
-      //     })
-      //     .then(res => {
-      //       if (res.data.code == 1) {
-      //         _this.viewDList = res.data.data;
-      //       }
-      //     })
-      //     .catch(function (error) {
-      //       console.log(error);
-      //     });
     },
     tableRowClassName({ row, rowIndex }) {
       if (row.status != 1) {
@@ -429,7 +415,7 @@ export default {
     //   记录列表
     jiLuList(row) {
       this.$axios
-        .post('/newtao/payOperationJu', {
+        .post('//', {
           id: row.id,
           biao_name: this.types,
         })
@@ -455,7 +441,7 @@ export default {
     //预览附件
     watchFiles(item) {
       this.$axios
-        .post('/dingding/getAuthUp', {
+        .post('//', {
           auth: 'download',
           fields: item.fileId,
         })
@@ -490,7 +476,7 @@ export default {
     addFilesClick(type) {
       const _this = this;
       _this.$axios
-        .post('/dingding/getAuthUp', {
+        .post('//', {
           type: 'add',
           fileids: '',
         })
@@ -544,7 +530,7 @@ export default {
     },
     getallaccList() {
       this.$axios
-        .post('/task/accountselect', {
+        .post('//', {
           current_page: 1,
           num: 9999,
           zstatus: 7,
@@ -568,7 +554,7 @@ export default {
       })
         .then(() => {
           this.$axios
-            .post('/newtao/payOperation', {
+            .post('//', {
               id: this.cx_id,
               biao_name: this.types,
               username: this.$store.state.userInfo.uname,

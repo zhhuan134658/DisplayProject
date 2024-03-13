@@ -108,7 +108,7 @@ export default {
   methods: {
     getList() {
       this.$axios
-        .post('/user/menu', { type: this.menuType })
+        .post('//', { type: this.menuType })
         .then(res => {
           if (res.data.code == 1) {
             this.menuList = res.data.data;
