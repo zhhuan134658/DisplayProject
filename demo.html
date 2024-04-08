@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            .fa_div {
+                width: 600px;
+                height: 600px;
+                position: absolute;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .demo_div {
+                width: 500px;
+                height: 500px;
+                /* border: 1px solid red; */
+                /* background: conic-gradient(from 90deg, red 180deg, #fff 180deg); */
+                mask: linear-gradient(to bottom, transparent 99%, black 100%),
+                    linear-gradient(to top, transparent 99%, black 100%),
+                    linear-gradient(to right, transparent 99%, black 100%),
+                    linear-gradient(to left, transparent 99%, black 100%);
+            }
+            .com_div {
+                width: 20px;
+                height: 20px;
+                border: 1px solid blue;
+                background-color: blue;
+                border-radius: 100%;
+                position: absolute;
+                cursor: pointer;
+            }
+            .demo_div_tl {
+                top: 40px;
+                left: 40px;
+            }
+            .demo_div_tr {
+                top: 40px;
+                right: 40px;
+            }
+            .demo_div_bl {
+                bottom: 40px;
+                left: 40px;
+            }
+            .demo_div_br {
+                bottom: 40px;
+                right: 40px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="fa_div" id="big_div">
+            <div class="demo_div" id="body_div"></div>
+            <div id="div_tl" class="com_div demo_div_tl"></div>
+            <div id="div_tr" class="com_div demo_div_tr"></div>
+            <div id="div_bl" class="com_div demo_div_bl"></div>
+            <div id="div_br" class="com_div demo_div_br"></div>
+        </div>
+        <button onclick="reSet()" style="margin-top: 700px">重置</button>
+        <script>
+            let body_div = document.getElementById('body_div');
+            const LONG_PRESS_TIME = 50;
+            let divdeg = 0;
+            let timer = null;
+            let deomentId = document.getElementById('big_div');
+            let reSetnum;
+            // console.log('555');
+            LongPress();
+            function LongPress() {
+                // 绑定元素的mousedown事件来开始计时
+                deomentId.addEventListener('mousedown', function (e) {
+                    console.log('长按事件触发2', e.target.id);
+                    // 当按下鼠标按钮时开始计时
+                    timer = setInterval(function () {
+                        // 当计时到达设定的时间后，执行长按要执行的操作
+                        console.log('长按事件触发');
+                        //当连接完成时清除
+                        if (divdeg >= 360) {
+                            clearInterval(timer);
+                            timer = null;
+                        }
+                        divdeg += 1;
+                        let fronDeg;
+                        //点击不同点时重置
+                        if (reSetnum !== e.target.id) {
+                            divdeg = 0;
+                        }
+                        if (e.target.id === 'div_tl') {
+                            fronDeg = -45;
+                        } else if (e.target.id === 'div_tr') {
+                            fronDeg = 45;
+                        } else if (e.target.id === 'div_bl') {
+                            fronDeg = 225;
+                        } else if (e.target.id === 'div_br') {
+                            fronDeg = 135;
+                        }
+                        body_div.style.background = `conic-gradient(from ${fronDeg}deg,red ${divdeg}deg,#fff 0)`;
+                        reSetnum = e.target.id;
+                        // console.log(divdeg);
+                    }, LONG_PRESS_TIME);
+                });
+
+                // 绑定元素的mouseup事件来清除计时并结束长按事件
+                deomentId.addEventListener('mouseup', function (e) {
+                    // 当释放鼠标按钮时清除计时并结束长按模拟
+                    clearInterval(timer);
+                    timer = null;
+                });
+
+                // 绑定元素的mouseleave事件来清除计时并结束长按事件
+                deomentId.addEventListener('mouseleave', function (e) {
+                    console.log('888');
+                    // 当鼠标离开元素区域时清除计时并结束长按模拟
+                    clearInterval(timer);
+                    timer = null;
+                });
+            }
+            //重置
+            function reSet() {
+                // console.log('4454');
+                divdeg = 0;
+                body_div.style.background = `conic-gradient(from -45deg,red 0,#fff 0)`;
+            }
+        </script>
+    </body>
+</html>
